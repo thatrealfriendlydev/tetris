@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tetris-v1';
+const CACHE_NAME = 'tetris-v2'; // Incremented version
 const ASSETS = [
   './',
   './index.html',
@@ -15,6 +15,20 @@ const ASSETS = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+  );
+  self.skipWaiting(); // Force activation
+});
+
+self.addEventListener('activate', (event) => {
+  // Clean up old Tetris caches
+  event.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.map((key) => {
+          if (key !== CACHE_NAME) return caches.delete(key);
+        })
+      );
+    })
   );
 });
 
