@@ -265,6 +265,14 @@ document.getElementById('overlay').addEventListener('pointerdown', e => {
 // Initialization
 nextQueue = [getNext(), getNext(), getNext(), getNext()];
 requestAnimationFrame(update);
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('SW registered!'))
+      .catch(err => console.error('SW registration failed:', err));
+  });
+}
 </script>
 </body>
 </html>
