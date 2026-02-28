@@ -1,14 +1,7 @@
-const CACHE_NAME = 'tetris-v3'; // Incremented version
+const CACHE_NAME = 'tetris-v4'; // Incremented version
 const ASSETS = [
   './',
   './index.html',
-  './clear.wav',
-  './drop.wav',
-  './gameover.wav',
-  './Korobeiniki.mp3',
-  './move.wav',
-  './rotate.wav',
-  './tetris.wav',
   './manifest.json'
 ];
 
