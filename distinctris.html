@@ -41,11 +41,16 @@
         #overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.9); z-index: 100; display: flex; justify-content: center; align-items: center; text-align: center; color: #fff; font-size: 10px; cursor: pointer;}
         #mobile-controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; width: 100%; max-width: 400px; padding: 10px; }
 		.btn { background: #333; color: #eee; border: 2px solid #555; padding: 12px 5px; border-radius: 8px; font-family: 'Press Start 2P'; font-size: 8px; }
+        
+        /* OPT-OUT LINK */
+        #opt-out { position: absolute; bottom: 10px; left: 10px; color: #555; font-size: 8px; z-index: 1000; text-decoration: none; }
     </style>
 </head>
 <body>
 
-<marquee scrollamount="8">WARNING: LACK OF DIAMOND PURCHASES DETECTED. BUY THE "GOD PACK" FOR $59.99!    WARNING: LACK OF DIAMOND PURCHASES DETECTED. BUY THE "GOD PACK" FOR $59.99!    WARNING: LACK OF DIAMOND PURCHASES DETECTED. BUY THE "GOD PACK" FOR $59.99!   WEEE! LOOK AT ME!!! I'M A MARQUEE!! YEEEE!!!   WARNING: LACK OF DIAMOND PURCHASES DETECTED. BUY THE "GOD PACK" FOR $59.99!</marquee>
+<marquee id="main-marquee" scrollamount="8">WARNING: LACK OF DIAMOND PURCHASES DETECTED. BUY THE "GOD PACK" FOR $59.99!</marquee>
+
+<a id="opt-out" href="index.html?aprilfools=false">PLAY NORMAL VERSION (BORING)</a>
 
 <button id="shop-trigger" onclick="toggleShop(true)">VIP SHOP</button>
 
@@ -94,6 +99,18 @@
 </div>
 
 <script>
+// Dynamic Marquee logic
+(function() {
+    const today = new Date();
+    const marquee = document.getElementById('main-marquee');
+    // Month is 0-indexed (3 = April)
+    if (today.getMonth() !== 3 || today.getDate() !== 1) {
+        marquee.innerText = "You aren't meant to be here yet... oh well :D    You aren't meant to be here yet... oh well :D";
+    } else {
+        marquee.innerText = "WARNING: LACK OF DIAMOND PURCHASES DETECTED. BUY THE 'GOD PACK' FOR $59.99!    WEEE! LOOK AT ME!!! I'M A MARQUEE!! YEEEE!!!";
+    }
+})();
+
 const keys = {}; 
 const SHAPES = { 1:[[1,1,1,1,1]], 2:[[0,2,0],[2,2,2],[0,2,0]], 3:[[3,3,0],[0,3,3],[0,0,3]], 4:[[4,0,0,0],[4,4,4,4]], 5:[[5,5,5],[5,0,5]], 6:[[0,6,6],[6,6,0],[0,6,0]], 7:[[7,7,7,7],[0,0,0,7]] };
 const COLORS = { 1:'#FF5733', 2:'#33FF57', 3:'#3357FF', 4:'#F333FF', 5:'#33FFF3', 6:'#F3FF33', 7:'#FF3380' };

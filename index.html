@@ -58,11 +58,18 @@
 </div>
 
 <script>
-// April Fools Redirect
+// April Fools Redirect with Opt-Out logic
 (function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('aprilfools') === 'false') {
+        localStorage.setItem('skipAprilFools', 'true');
+    }
+
     const today = new Date();
-    // month is 0-indexed (0 = Jan, 3 = April)
-    if (today.getMonth() === 3 && today.getDate() === 1) {
+    const hasOptedOut = localStorage.getItem('skipAprilFools') === 'true';
+
+    // month is 0-indexed (3 = April)
+    if (today.getMonth() === 3 && today.getDate() === 1 && !hasOptedOut) {
         window.location.href = 'distinctris.html';
     }
 })();
