@@ -2,48 +2,114 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Geo-Stack: It's Perfectly Legal!</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         :root { --gb-bg: #2a2a2a; --gb-screen: #1a1a1a; --gb-dark: #eee; --gb-accent: #555; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #111; display: flex; flex-direction: column; align-items: center; overflow: hidden; font-family: 'Press Start 2P', cursive; user-select: none; touch-action: none; transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         
-        marquee { width: 100%; background: #ff0000; color: white; padding: 10px 0; font-size: 10px; border-bottom: 4px solid #fff; position: absolute; top: 0; z-index: 1000;}
+        body, html { 
+            margin: 0; padding: 0; width: 100%; height: 100%; 
+            background-color: #111; display: flex; flex-direction: column; 
+            align-items: center; overflow: hidden; font-family: 'Press Start 2P', cursive; 
+            user-select: none; touch-action: none; 
+        }
 
-        #main-container { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; transition: all 0.1s; }
+        /* MARQUEE */
+        marquee { 
+            width: 100%; background: #ff0000; color: white; padding: 10px 0; 
+            font-size: 10px; border-bottom: 4px solid #fff; position: relative; z-index: 1000;
+        }
+
+        /* MAIN LAYOUT */
+        #main-container { 
+            flex: 1; display: flex; flex-direction: column; align-items: center; 
+            justify-content: center; width: 100%; overflow: hidden; position: relative;
+        }
+
+        /* AUTO-SCALING WRAPPER */
+        #scaler {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transform-origin: center center;
+        }
 
         /* VIP SHOP POPUP */
-        .modal { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; background: linear-gradient(180deg, #ffd700, #b8860b); border: 6px solid #fff; padding: 20px; z-index: 2000; box-shadow: 0 0 100px rgba(0,0,0,0.9); text-align: center; }
-        .modal h2 { color: #000; font-size: 14px; margin-bottom: 20px; }
-        .buy-btn { background: #4caf50; color: white; border: 3px solid #2e7d32; padding: 10px; font-family: 'Press Start 2P'; font-size: 8px; cursor: pointer; display: block; width: 100%; margin: 10px 0; }
-        .close-shop { background: #f44336; color: white; border: none; padding: 5px; font-family: 'Press Start 2P'; font-size: 8px; cursor: pointer; margin-top: 10px; }
+        .modal { 
+            display: none; position: absolute; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); width: 280px; 
+            background: linear-gradient(180deg, #ffd700, #b8860b); 
+            border: 6px solid #fff; padding: 20px; z-index: 2000; 
+            box-shadow: 0 0 100px rgba(0,0,0,0.9); text-align: center; 
+        }
+        .modal h2 { color: #000; font-size: 12px; margin-bottom: 20px; }
+        .buy-btn { 
+            background: #4caf50; color: white; border: 3px solid #2e7d32; 
+            padding: 10px; font-family: 'Press Start 2P'; font-size: 8px; 
+            cursor: pointer; display: block; width: 100%; margin: 10px 0; 
+        }
+        .close-shop { 
+            background: #f44336; color: white; border: none; padding: 5px; 
+            font-family: 'Press Start 2P'; font-size: 8px; cursor: pointer; margin-top: 10px; 
+        }
 
-        /* CONFIRM POPUP */
-        #confirm-popup { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 220px; background: #eee; border: 4px solid #000; padding: 15px; z-index: 3000; text-align: center; color: #000; font-size: 10px; }
+        #confirm-popup { 
+            display: none; position: absolute; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); width: 220px; background: #eee; 
+            border: 4px solid #000; padding: 15px; z-index: 3000; 
+            text-align: center; color: #000; font-size: 10px; 
+        }
 
-        /* UI BUTTONS */
-        #shop-trigger { position: absolute; top: 60px; right: 20px; background: #ffd700; border: 3px solid #fff; padding: 10px; font-size: 8px; cursor: pointer; animation: pulse 1s infinite; z-index: 500; }
-        #daily-reward { position: absolute; bottom: 20px; right: 20px; background: #e91e63; color: white; padding: 15px; border: 4px solid #ad1457; font-size: 8px; cursor: pointer; z-index: 500; }
+        /* UI BUTTONS - MOVED TO TOP RIGHT SO THEY DON'T BLOCK CONTROLS */
+        #shop-trigger { 
+            position: absolute; top: 50px; right: 10px; background: #ffd700; 
+            border: 3px solid #fff; padding: 8px; font-size: 7px; cursor: pointer; 
+            animation: pulse 1s infinite; z-index: 500; 
+        }
+        #daily-reward { 
+            position: absolute; top: 100px; right: 10px; background: #e91e63; 
+            color: white; padding: 8px; border: 3px solid #ad1457; 
+            font-size: 7px; cursor: pointer; z-index: 500; width: 80px; text-align: center;
+        }
 
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         @keyframes shake { 0% { transform: translate(1px, 1px); } 20% { transform: translate(-3px, 0px); } 40% { transform: translate(3px, 2px); } 60% { transform: translate(-3px, 1px); } 80% { transform: translate(-1px, -1px); } 100% { transform: translate(1px, -2px); } }
 
-        #game-wrapper { position: relative; background-color: var(--gb-bg); padding: 2vh; border-radius: 10px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); display: flex; gap: 2vh; border: 0.5vh solid #444; }
-        canvas { background-color: var(--gb-screen); border: 0.4vh solid var(--gb-dark); image-rendering: pixelated; }
-        #board-canvas { width: 240px; height: 400px; }
+        #game-wrapper { 
+            position: relative; background-color: var(--gb-bg); padding: 10px; 
+            border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); 
+            display: flex; gap: 10px; border: 4px solid #444; 
+        }
         
-        .panel { display: flex; flex-direction: column; justify-content: space-between; width: 12vh; }
-        .box { text-align: center; font-size: 8px; color: var(--gb-dark); }
-        .box canvas { background: transparent; border: 0.2vh dashed var(--gb-accent); width: 8vh; height: 8vh; margin-top: 1vh; }
-        #next-canvas { height: 300px; }
-        .stats p { margin: 2vh 0; font-size: 8px; line-height: 1.6; color: var(--gb-dark); }
-        #overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.9); z-index: 100; display: flex; justify-content: center; align-items: center; text-align: center; color: #fff; font-size: 10px; cursor: pointer;}
-        #mobile-controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; width: 100%; max-width: 400px; padding: 10px; }
-		.btn { background: #333; color: #eee; border: 2px solid #555; padding: 12px 5px; border-radius: 8px; font-family: 'Press Start 2P'; font-size: 8px; }
+        canvas { background-color: var(--gb-screen); border: 2px solid var(--gb-dark); image-rendering: pixelated; }
+        #board-canvas { width: 200px; height: 333px; } /* Slightly scaled for mobile fit */
         
-        /* OPT-OUT LINK */
-        #opt-out { position: absolute; bottom: 10px; left: 10px; color: #555; font-size: 8px; z-index: 1000; text-decoration: none; }
+        .panel { display: flex; flex-direction: column; justify-content: space-between; width: 70px; }
+        .box { text-align: center; font-size: 7px; color: var(--gb-dark); }
+        .box canvas { background: transparent; border: 1px dashed var(--gb-accent); width: 50px; height: 50px; margin-top: 5px; }
+        #next-canvas { height: 150px; width: 50px; }
+        
+        .stats p { margin: 10px 0; font-size: 7px; line-height: 1.4; color: var(--gb-dark); }
+        
+        #overlay { 
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0; 
+            background: rgba(0, 0, 0, 0.9); z-index: 100; display: flex; 
+            justify-content: center; align-items: center; text-align: center; 
+            color: #fff; font-size: 10px; cursor: pointer;
+        }
+
+        /* MOBILE CONTROLS - FIXED AT BOTTOM */
+        #mobile-controls { 
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; 
+            width: 95%; max-width: 400px; padding: 15px 10px; background: #222;
+            border-top: 2px solid #444;
+        }
+        .btn { 
+            background: #333; color: #eee; border: 2px solid #555; 
+            padding: 15px 5px; border-radius: 8px; font-family: 'Press Start 2P'; 
+            font-size: 8px; active: background: #555;
+        }
+
+        #opt-out { position: absolute; bottom: 5px; left: 5px; color: #555; font-size: 6px; z-index: 1000; text-decoration: none; }
     </style>
 </head>
 <body>
@@ -53,21 +119,24 @@
 <a id="opt-out" href="index.html?aprilfools=false">PLAY NORMAL VERSION (BORING)</a>
 
 <button id="shop-trigger" onclick="toggleShop(true)">VIP SHOP</button>
+<div id="daily-reward" onclick="breakPhysics()">CLAIM REWARD!</div>
 
 <div id="main-container">
-    <div id="game-wrapper">
-        <div id="overlay"><div><p>GEO-STACK</p><p>TAP TO START</p></div></div>
-        <div class="panel">
-            <div class="box">STASH<canvas id="hold-canvas" width="100" height="100"></canvas></div>
-            <div class="stats">
-                <p>BEST<br><span id="hi-score">0</span></p>
-                <p>SCORE<br><span id="score">0</span></p>
-                <p>LEVEL<br><span id="level">1</span></p>
+    <div id="scaler">
+        <div id="game-wrapper">
+            <div id="overlay"><div><p>GEO-STACK</p><p>TAP TO START</p></div></div>
+            <div class="panel">
+                <div class="box">STASH<canvas id="hold-canvas" width="100" height="100"></canvas></div>
+                <div class="stats">
+                    <p>BEST<br><span id="hi-score">0</span></p>
+                    <p>SCORE<br><span id="score">0</span></p>
+                    <p>LEVEL<br><span id="level">1</span></p>
+                </div>
             </div>
-        </div>
-        <canvas id="board-canvas" width="240" height="400"></canvas>
-        <div class="panel">
-            <div class="box">QUEUE<canvas id="next-canvas" width="100" height="300"></canvas></div>
+            <canvas id="board-canvas" width="240" height="400"></canvas>
+            <div class="panel">
+                <div class="box">QUEUE<canvas id="next-canvas" width="100" height="300"></canvas></div>
+            </div>
         </div>
     </div>
 </div>
@@ -77,7 +146,7 @@
     <button class="buy-btn" onclick="askConfirm('REMOVE ADS')">REMOVE ADS $9.99</button>
     <button class="buy-btn" onclick="askConfirm('INSTANT WIN')">INSTANT WIN $99.99</button>
     <button class="buy-btn" onclick="askConfirm('NO GRAVITY')">NO GRAVITY $4.99</button>
-    <button class="close-shop" onclick="toggleShop(false)">GO BACK (YOU FR BROKE)</button>
+    <button class="close-shop" onclick="toggleShop(false)">GO BACK (YOU BROKE)</button>
 </div>
 
 <div id="confirm-popup">
@@ -86,8 +155,6 @@
     <button class="buy-btn" onclick="window.open('https://www.youtube.com/watch?v=dQw4w9WgXcQ')">YES, BUY!</button>
     <button class="close-shop" onclick="document.getElementById('confirm-popup').style.display='none'">CANCEL</button>
 </div>
-
-<div id="daily-reward" onclick="breakPhysics()">CLAIM DAILY REWARD!</div>
 
 <div id="mobile-controls">
     <button class="btn" id="m-left">LEFT</button>
@@ -99,15 +166,29 @@
 </div>
 
 <script>
+// Auto-scale logic for mobile screens
+function resizer() {
+    const scaler = document.getElementById('scaler');
+    const container = document.getElementById('main-container');
+    const padding = 20;
+    const scale = Math.min(
+        (container.offsetWidth - padding) / 380, 
+        (container.offsetHeight - padding) / 450,
+        1
+    );
+    scaler.style.transform = `scale(${scale})`;
+}
+window.addEventListener('resize', resizer);
+resizer();
+
 // Dynamic Marquee logic
 (function() {
     const today = new Date();
     const marquee = document.getElementById('main-marquee');
-    // Month is 0-indexed (3 = April)
     if (today.getMonth() !== 3 || today.getDate() !== 1) {
-        marquee.innerText = "You aren't meant to be here yet... oh well :D    You aren't meant to be here yet... oh well :D";
+        marquee.innerText = "You aren't meant to be here yet... oh well :D";
     } else {
-        marquee.innerText = "WARNING: LACK OF DIAMOND PURCHASES DETECTED. BUY THE 'GOD PACK' FOR $59.99!    WEEE! LOOK AT ME!!! I'M A MARQUEE!! YEEEE!!!";
+        marquee.innerText = "WARNING: LACK OF DIAMOND PURCHASES DETECTED. BUY THE 'GOD PACK' FOR $59.99!  WEEE! LOOK AT ME!!! I'M A MARQUEE!!";
     }
 })();
 
@@ -115,7 +196,6 @@ const keys = {};
 const SHAPES = { 1:[[1,1,1,1,1]], 2:[[0,2,0],[2,2,2],[0,2,0]], 3:[[3,3,0],[0,3,3],[0,0,3]], 4:[[4,0,0,0],[4,4,4,4]], 5:[[5,5,5],[5,0,5]], 6:[[0,6,6],[6,6,0],[0,6,0]], 7:[[7,7,7,7],[0,0,0,7]] };
 const COLORS = { 1:'#FF5733', 2:'#33FF57', 3:'#3357FF', 4:'#F333FF', 5:'#33FFF3', 6:'#F3FF33', 7:'#FF3380' };
 
-// NORMALIZED AUDIO LOGIC
 const sfx = {
     bgm: new Audio('Spazzmatica Polka.mp3'),
     move: new Audio('move2.mp3'),
@@ -125,7 +205,7 @@ const sfx = {
     gameOver: new Audio('game over new.mp3')
 };
 sfx.bgm.loop = true;
-sfx.bgm.volume = 1.0; 
+sfx.bgm.volume = 0.5; 
 sfx.move.volume = 0.15;
 sfx.place.volume = 0.25;
 sfx.clear.volume = 0.3;
@@ -150,14 +230,13 @@ function askConfirm(item) {
 function breakPhysics() {
     const body = document.body;
     const container = document.getElementById('main-container');
+    body.style.transition = "transform 0.5s";
     body.style.transform = `rotate(${Math.random() * 10 - 5}deg) scale(0.9)`;
     container.style.animation = "shake 0.2s infinite";
     setTimeout(() => {
         container.style.animation = "";
         body.style.transform = "rotate(0deg) scale(1)";
     }, 2000);
-    document.getElementById('daily-reward').style.top = Math.random() * 80 + "%";
-    document.getElementById('daily-reward').style.left = Math.random() * 80 + "%";
 }
 
 function collides(shape, x, y) {
@@ -236,6 +315,7 @@ function startGame() {
     document.getElementById('overlay').style.display = 'none';
     gameState = 'PLAYING'; spawnPiece(nextQueue.shift()); 
     sfx.bgm.play().catch(()=>{});
+    resizer();
 }
 
 function endGame() {
@@ -270,8 +350,16 @@ window.addEventListener('keydown', e => {
 });
 window.addEventListener('keyup', e => keys[e.key] = false);
 
-const addMobile = (id, fn) => { document.getElementById(id).addEventListener('pointerdown', e => { e.preventDefault(); if(gameState !== 'PLAYING') startGame(); else fn(); }); };
-addMobile('m-left', () => move(-1,0)); addMobile('m-right', () => move(1,0)); addMobile('m-rotate', () => rotate());
+const addMobile = (id, fn) => { 
+    document.getElementById(id).addEventListener('pointerdown', e => { 
+        e.preventDefault(); 
+        if(gameState !== 'PLAYING') startGame(); 
+        else fn(); 
+    }); 
+};
+addMobile('m-left', () => move(-1,0)); 
+addMobile('m-right', () => move(1,0)); 
+addMobile('m-rotate', () => rotate());
 addMobile('m-hold', () => { if (canHold && piece) { let t = piece.type; holdPiece ? spawnPiece(holdPiece) : spawnPiece(nextQueue.shift()); holdPiece = t; canHold = false; } });
 addMobile('m-drop', () => { while(move(0,1)); lockPiece(); });
 document.getElementById('m-down').addEventListener('pointerdown', e => { keys['ArrowDown'] = true; });
