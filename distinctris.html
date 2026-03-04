@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Geo-Stack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        :root { --gb-bg: #2a2a2a; --gb-screen: #1a1a1a; --gb-dark: #eee; --gb-accent: #555; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #111; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; font-family: 'Press Start 2P', cursive; user-select: none; touch-action: none; }
+        #game-wrapper { position: relative; background-color: var(--gb-bg); padding: 2vh; border-radius: 10px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); display: flex; gap: 2vh; max-width: 95vw; max-height: 80vh; border: 0.5vh solid #444; }
+        canvas { background-color: var(--gb-screen); border: 0.4vh solid var(--gb-dark); image-rendering: pixelated; }
+        #board-canvas { width: 240px; height: 400px; }
+        .panel { display: flex; flex-direction: column; justify-content: space-between; width: 15vh; }
+        .box { text-align: center; font-size: 1.2vh; color: var(--gb-dark); }
+        .box canvas { background: transparent; border: 0.2vh dashed var(--gb-accent); width: 12vh; height: 12vh; margin-top: 1vh; }
+        #next-canvas { height: 350px; }
+        .stats p { margin: 2vh 0; font-size: 1.2vh; line-height: 1.6; color: var(--gb-dark); }
+        #mobile-controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%; max-width: 400px; padding: 20px; margin-top: 10px; }
+		.btn { background: #333; color: #eee; border: 2px solid #555; padding: 20px 10px; border-radius: 12px; font-family: 'Press Start 2P'; font-size: 10px; }
+		.btn-action { background: #0066cc; border-color: #0099ff; }
+        #overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.9); z-index: 100; display: flex; justify-content: center; align-items: center; text-align: center; color: #fff; font-size: 1.5vh; cursor: pointer;}
+    </style>
+</head>
+<body>
+
+<div id="game-wrapper">
+    <div id="overlay"><div><p>GEO-STACK</p><p>TAP TO START</p></div></div>
+    <div class="panel">
+        <div class="box">STASH<canvas id="hold-canvas" width="100" height="100"></canvas></div>
+        <div class="stats">
+            <p>BEST<br><span id="hi-score">0</span></p>
+            <p>SCORE<br><span id="score">0</span></p>
+            <p>STAGE<br><span id="level">1</span></p>
+        </div>
+    </div>
+    <canvas id="board-canvas" width="240" height="400"></canvas>
+    <div class="panel">
+        <div class="box">QUEUE<canvas id="next-canvas" width="100" height="350"></canvas></div>
+    </div>
+</div>
+
+<div id="mobile-controls">
+    <button class="btn" id="m-left">LEFT</button>
+    <button class="btn" id="m-rotate">TURN</button>
+    <button class="btn" id="m-right">RIGHT</button>
+    <button class="btn" id="m-hold">STASH</button>
+    <button class="btn" id="m-down">SLOW</button>
+    <button class="btn btn-action" id="m-drop">SLOT</button>
+</div>
+
+<script>
+const keys = {}; 
+const COLORS = { 1:'#FF5733', 2:'#33FF57', 3:'#3357FF', 4:'#F333FF', 5:'#33FFF3', 6:'#F3FF33', 7:'#FF3380' };
+const SHAPES = { 
+    1:[[1,1,1,1,1]], 2:[[0,2,0],[2,2,2],[0,2,0]], 3:[[3,3,0],[0,3,3],[0,0,3]], 
+    4:[[4,0,0,0],[4,4,4,4]], 5:[[5,5,5],[5,0,5]], 6:[[0,6,6],[6,6,0],[0,6,0]], 7:[[7,7,7,7],[0,0,0,7]] 
+};
+
+// Audio Setup
+const sfx = {
+    bgm: new Audio('Spazzmatica Polka.mp3'),
+    move: new Audio('move2.mp3'),
+    place: new Audio('place.mp3'),
+    clear: new Audio('clear sound.mp3'),
+    multi: new Audio('multi line clear.mp3'),
+    gameOver: new Audio('game over new.mp3')
+};
+sfx.bgm.loop = true;
+sfx.bgm.volume = 0.8; 
+sfx.move.volume = 0.2;
+sfx.place.volume = 0.4;
+sfx.clear.volume = 0.5;
+sfx.multi.volume = 0.6;
+sfx.gameOver.volume = 0.7;
+
+let board = Array.from({length:20}, () => Array(12).fill(0));
+let nextQueue = [], holdPiece = null, canHold = true, piece = null;
+let score = 0, level = 1, lines = 0, gameState = 'START';
+let dropCounter = 0, lastTime = 0, lockDelayCounter = 0;
+let highScore = localStorage.getItem('geostack-best') || 0;
+
+const boardCtx = document.getElementById('board-canvas').getContext('2d');
+const nextCtx = document.getElementById('next-canvas').getContext('2d');
+const holdCtx = document.getElementById('hold-canvas').getContext('2d');
+document.getElementById('hi-score').innerText = highScore;
+
+function collides(shape, x, y) {
+    for (let r = 0; r < shape.length; r++)
+        for (let c = 0; c < shape[r].length; c++)
+            if (shape[r][c]) {
+                let nX = x + c, nY = y + r;
+                if (nX < 0 || nX >= 12 || nY >= 20 || (nY >= 0 && board[nY] && board[nY][nX])) return true;
+            }
+    return false;
+}
+
+function move(dx, dy) {
+    if (gameState !== 'PLAYING' || !piece) return false;
+    if (!collides(piece.shape, piece.x + dx, piece.y + dy)) {
+        piece.x += dx; piece.y += dy;
+        if(dx !== 0) sfx.move.play().catch(()=>{});
+        return true;
+    }
+    return false;
+}
+
+function rotate() {
+    if (gameState !== 'PLAYING' || !piece) return;
+    const nextS = piece.shape[0].map((_, i) => piece.shape.map(row => row[i])).reverse();
+    if (!collides(nextS, piece.x, piece.y)) piece.shape = nextS;
+}
+
+function spawnPiece(type) {
+    piece = { type, shape: SHAPES[type], x: 4, y: 0 };
+    canHold = true;
+    if (collides(piece.shape, piece.x, piece.y)) endGame();
+}
+
+function lockPiece() {
+    piece.shape.forEach((row, r) => row.forEach((v, c) => { if (v) board[piece.y + r][piece.x + c] = piece.type; }));
+    sfx.place.play().catch(()=>{});
+    
+    let cleared = 0;
+    for(let y = 19; y >= 0; y--) {
+        if(board[y].every(v => v !== 0)) {
+            board.splice(y, 1); board.unshift(Array(12).fill(0));
+            cleared++; y++;
+        }
+    }
+    if(cleared > 0) {
+        cleared > 1 ? sfx.multi.play().catch(()=>{}) : sfx.clear.play().catch(()=>{});
+        score += cleared * 150 * level; lines += cleared; level = Math.floor(lines/5)+1;
+    }
+    spawnPiece(nextQueue.length ? nextQueue.shift() : 1);
+    if(nextQueue.length < 5) nextQueue.push(...[1,2,3,4,5,6,7].sort(() => Math.random() - 0.5));
+    lockDelayCounter = 0;
+}
+
+function drawBlock(ctx, x, y, type) {
+    ctx.fillStyle = COLORS[type];
+    ctx.fillRect(x * 20, y * 20, 20, 20);
+    ctx.strokeStyle = '#222';
+    ctx.strokeRect(x * 20, y * 20, 20, 20);
+}
+
+function draw() {
+    boardCtx.clearRect(0,0,240,400);
+    board.forEach((row, y) => row.forEach((v, x) => { if(v) drawBlock(boardCtx, x, y, v); }));
+    if (piece && gameState === 'PLAYING') {
+        piece.shape.forEach((row, r) => row.forEach((v, c) => {
+            if (v) drawBlock(boardCtx, piece.x + c, piece.y + r, piece.type);
+        }));
+    }
+    nextCtx.clearRect(0,0,100,350);
+    nextQueue.slice(0,3).forEach((t, i) => {
+        SHAPES[t].forEach((row, r) => row.forEach((v, c) => v && drawBlock(nextCtx, c+1, i*6+1+r, t)));
+    });
+    holdCtx.clearRect(0,0,100,100);
+    if (holdPiece) SHAPES[holdPiece].forEach((row, r) => row.forEach((v, c) => v && drawBlock(holdCtx, c+1, 1+r, holdPiece)));
+}
+
+function startGame() {
+    board = Array.from({length:20}, () => Array(12).fill(0));
+    nextQueue = [1,2,3,4,5,6,7].sort(() => Math.random() - 0.5);
+    score = 0; level = 1; lines = 0; holdPiece = null;
+    document.getElementById('overlay').style.display = 'none';
+    gameState = 'PLAYING'; 
+    spawnPiece(nextQueue.shift()); 
+    sfx.bgm.play().catch(()=>{});
+}
+
+function endGame() {
+    gameState = 'GAMEOVER'; 
+    sfx.bgm.pause();
+    sfx.bgm.currentTime = 0;
+    sfx.gameOver.play().catch(()=>{});
+    document.getElementById('overlay').style.display = 'flex';
+    document.getElementById('overlay').innerHTML = '<div><p>OUT OF SPACE</p><p>RESTART</p></div>';
+}
+
+function update(time = 0) {
+    const dt = time - lastTime; lastTime = time;
+    if (gameState === 'PLAYING' && piece) {
+        dropCounter += dt;
+        let spd = Math.max(100, 1000 - (level * 100));
+        if (keys['ArrowDown']) spd = 50;
+        
+        if (dropCounter > spd) { 
+            if(!move(0, 1)) { lockDelayCounter += 100; }
+            dropCounter = 0; 
+        }
+
+        if (collides(piece.shape, piece.x, piece.y + 1)) {
+            lockDelayCounter += dt;
+            if (lockDelayCounter > 400) {
+                lockPiece();
+            }
+        }
+    }
+    document.getElementById('score').innerText = score;
+    document.getElementById('level').innerText = level;
+    draw(); requestAnimationFrame(update);
+}
+
+window.addEventListener('keydown', e => {
+    keys[e.key] = true;
+    if (gameState !== 'PLAYING') return;
+    if (e.key === 'ArrowLeft') move(-1,0); 
+    if (e.key === 'ArrowRight') move(1,0);
+    if (e.key === 'ArrowUp') rotate();
+    if (e.key === ' ') { // SPACE BAR SLOT
+        while(move(0,1)); 
+        lockPiece();
+    }
+    if (e.key === 'c' || e.key === 'Shift') {
+        if (canHold && piece) { 
+            let t = piece.type; 
+            if(holdPiece) { spawnPiece(holdPiece); } else { spawnPiece(nextQueue.shift()); }
+            holdPiece = t; canHold = false; 
+        } 
+    }
+});
+window.addEventListener('keyup', e => keys[e.key] = false);
+
+const addMobile = (id, fn) => { 
+    document.getElementById(id).addEventListener('pointerdown', e => { 
+        e.preventDefault(); 
+        if(gameState !== 'PLAYING') startGame(); else fn(); 
+    }); 
+};
+addMobile('m-left', () => move(-1,0)); 
+addMobile('m-right', () => move(1,0)); 
+addMobile('m-rotate', () => rotate());
+addMobile('m-hold', () => { 
+    if (canHold && piece) { 
+        let t = piece.type; 
+        holdPiece ? spawnPiece(holdPiece) : spawnPiece(nextQueue.shift()); 
+        holdPiece = t; canHold = false; 
+    } 
+});
+addMobile('m-drop', () => { while(move(0,1)); lockPiece(); });
+document.getElementById('m-down').addEventListener('pointerdown', e => { keys['ArrowDown'] = true; });
+document.getElementById('m-down').addEventListener('pointerup', e => { keys['ArrowDown'] = false; });
+document.getElementById('overlay').addEventListener('pointerdown', () => startGame());
+
+requestAnimationFrame(update);
+</script>
+</body>

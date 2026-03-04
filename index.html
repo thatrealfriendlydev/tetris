@@ -58,6 +58,15 @@
 </div>
 
 <script>
+// April Fools Redirect
+(function() {
+    const today = new Date();
+    // month is 0-indexed (0 = Jan, 3 = April)
+    if (today.getMonth() === 3 && today.getDate() === 1) {
+        window.location.href = 'distinctris.html';
+    }
+})();
+
 const GB = { BG: '#8bac0f', GHOST: '#306230', BLOCK: '#0f380f' };
 const SGB_COLORS = { 1:'#e0e000', 2:'#00e0e0', 3:'#a000e0', 4:'#e0a000', 5:'#0000e0', 6:'#00e000', 7:'#e00000' };
 const SHAPES = { 1:[[1,1],[1,1]], 2:[[0,0,0,0],[2,2,2,2],[0,0,0,0],[0,0,0,0]], 3:[[0,3,0],[3,3,3],[0,0,0]], 4:[[0,0,4],[4,4,4],[0,0,0]], 5:[[5,0,0],[5,5,5],[0,0,0]], 6:[[0,6,6],[6,6,0],[0,0,0]], 7:[[7,7,0],[0,7,7],[0,0,0]] };
