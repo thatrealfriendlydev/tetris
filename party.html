@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Party Bookmarklet - Official Home</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            color: #333;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        #container {
+            width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            border: 1px solid #ccc;
+            padding: 20px;
+            text-align: left;
+        }
+        h1 {
+            font-size: 24px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        .button-box {
+            background: #f9f9f9;
+            border: 1px dashed #bbb;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .bookmarklet-link {
+            font-weight: bold;
+            color: #0000EE;
+            text-decoration: underline;
+            font-size: 18px;
+            cursor: move;
+        }
+        .instructions {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+        }
+        footer {
+            margin-top: 20px;
+            font-size: 11px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+
+<div id="container">
+    <h1>Party Bookmarklet</h1>
+    
+    <p>This script adds animations and music to the current page. It does not install anything on your computer.</p>
+
+    <div class="button-box">
+        <a class="bookmarklet-link" href='javascript:(function(){var A="https://thatrealfriendlydev.github.io/tetris/EPIKPARTY.mp3",B="party-active",S="party-strobe",I="party-style",T=["p1","p2","p3","p4"],orig=document.title;if(!document.getElementById(I)){var s=document.createElement("style");s.id=I;s.innerHTML="@keyframes p-f{0%,100%{opacity:1}50%{opacity:0}}@keyframes p-s{0%,100%{transform:translateX(0)}10%,30%,50%,70%,90%{transform:translateX(-10px)}20%,40%,60%,80%{transform:translateX(10px)}}@keyframes p-w{0%{transform:translateX(0%)}15%{transform:translateX(-15%) rotate(-5deg)}30%{transform:translateX(12%) rotate(3deg)}45%{transform:translateX(-9%) rotate(-3deg)}60%{transform:translateX(6%) rotate(2deg)}75%{transform:translateX(-3%) rotate(-1deg)}100%{transform:translateX(0%)}}@keyframes p-p{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}@keyframes p-b{0%{opacity:0;transform:scale(.3)}50%{opacity:1;transform:scale(1.05)}70%{transform:scale(.9)}100%{transform:scale(1)}}.party-strobe{position:fixed;top:0;left:0;width:100%;height:100%;z-index:99999;background:rgba(255,255,255,0.7);animation:p-f 0.1s infinite}.party-active{animation-duration:0.4s;animation-iteration-count:infinite;animation-timing-function:linear}.p1{animation-name:p-w}.p2{animation-name:p-s}.p3{animation-name:p-b}.p4{animation-name:p-p}";document.head.appendChild(s)}function v(e){return e.offsetHeight>30&&e.offsetHeight<350&&e.offsetWidth>30&&e.offsetWidth<350}function off(){document.querySelectorAll("."+B).forEach(el=>el.classList.remove(B,...T));var st=document.getElementById(I);if(st)st.remove();var sb=document.querySelector("."+S);if(sb)sb.remove();document.title=orig}var all=document.querySelectorAll("*"),f=Array.from(all).find(v);if(!f)return;var a=document.createElement("audio");a.src=A;a.addEventListener("canplay",function(){setTimeout(function(){f.classList.add(B,"p1")},500);setTimeout(function(){document.title="LET&apos;S RAAAAVE HELL YEAH";var d=document.createElement("div");d.className=S;document.body.appendChild(d);setTimeout(()=>d.remove(),100);document.querySelectorAll("*").forEach(el=>{if(v(el))el.classList.add(B,T[Math.floor(Math.random()*T.length)])})},15500)});a.addEventListener("ended",off);a.play()})();'>
+            [Drag to Bookmarks Bar]
+        </a>
+    </div>
+
+    <div class="instructions">
+        <strong>How to install:</strong>
+        <ol>
+            <li>Ensure your Bookmarks Bar is visible (Ctrl+Shift+B).</li>
+            <li>Click and drag the link above into your Bookmarks Bar.</li>
+            <li>Go to any website and click the bookmark to start the party.</li>
+        </ol>
+        <p><em>Note: Works best in Chrome and Firefox. Make sure your volume is up!</em></p>
+    </div>
+</div>
+
+</body>
+</html>
