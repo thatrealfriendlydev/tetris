@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tetris-v4'; // Incremented version
+const CACHE_NAME = 'tetris-v5'; // Incremented version
 const ASSETS = [
   './',
   './index.html',
