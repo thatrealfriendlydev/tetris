@@ -63,9 +63,14 @@
     const today = new Date();
     
     const isAprilFools = (today.getMonth() === 3 && today.getDate() === 1);
-    const isOptingOut = urlParams.get('aprilfools') === 'false';
+    const currentParam = urlParams.get('aprilfools');
 
-    if (isAprilFools && !isOptingOut) {
+    if (!currentParam) {
+        const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?aprilfools=true';
+        window.history.replaceState({path: newUrl}, '', newUrl);
+    }
+
+    if (isAprilFools && currentParam !== 'false') {
         window.location.href = 'distinctris.html';
     }
 })();
